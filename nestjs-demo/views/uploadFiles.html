@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <script src="https://unpkg.com/axios@0.24.0/dist/axios.min.js"></script>
+    </head>
+    <body>
+        <span>单文件：</span>
+        <input id="fileInput" type="file" multiple/>
+        <br/>
+
+        <span>多文件：</span>
+        <input id="fileInput1" type="file" multiple/>
+        <br/>
+
+        <span>多文件多字段：</span>
+        <input id="fileInput2" type="file" multiple/>
+        <br/>
+
+        <span>多文件多字段：</span>
+        <input id="fileInput3" type="file" multiple/>
+        <br/>
+
+        <script>
+            const fileInput = document.querySelector('#fileInput');
+            const fileInput1 = document.querySelector('#fileInput1');
+            const fileInput2 = document.querySelector('#fileInput2');
+            const fileInput3 = document.querySelector('#fileInput3');
+
+            async function formData() {
+                const data = new FormData();
+                data.set('name','光');
+                data.set('age', 20);
+                data.set('aa', fileInput.files[0]);
+
+                // const res = await axios.post('http://localhost:8080/nest-multer-upload/aa', data);
+                // const res = await axios.post('http://localhost:8080/nest-multer-upload/ee', data);          
+                // const res = await axios.post('http://localhost:8080/nest-multer-upload/ff', data);     
+                const res = await axios.post('http://localhost:8080/nest-multer-upload/hh', data);       
+                console.log(res);
+            }
+            fileInput.onchange = formData;
+
+            async function formData1() {
+                const data = new FormData();
+                data.set('name','光');
+                data.set('age', 20);
+                [...fileInput1.files].forEach(item => {
+                    data.append('bb', item)
+                })
+
+                const res = await axios.post('http://localhost:8080/nest-multer-upload/bb', data);
+                console.log(res);
+            }
+            fileInput1.onchange = formData1;
+
+            async function formData2() {
+                const data = new FormData();
+                data.set('name','光');
+                data.set('age', 20);
+                data.append('aa', fileInput2.files[0]);
+                data.append('aa', fileInput2.files[1]);
+                data.append('bb', fileInput2.files[2]);
+                data.append('bb', fileInput2.files[3]);
+
+                const res = await axios.post('http://localhost:8080/nest-multer-upload/cc', data);
+                console.log(res);
+            }
+            fileInput2.onchange = formData2;
+
+            async function formData3() {
+                const data = new FormData();
+                data.set('name','光');
+                data.set('age', 20);
+                data.set('aa', fileInput3.files[0]);
+                data.set('bb', fileInput3.files[1]);
+                data.set('cc', fileInput3.files[2]);
+                data.set('dd', fileInput3.files[3]);
+
+                const res = await axios.post('http://localhost:8080/nest-multer-upload/dd', data);
+                console.log(res);
+            }
+            fileInput3.onchange = formData3;
+        </script>
+    </body>
+</html>
