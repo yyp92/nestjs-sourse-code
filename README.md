@@ -20,7 +20,6 @@ redis-cli
 
 
 
-
 ### 可视化工具
 ####  list 类型的数据结构
 ```bash
@@ -111,7 +110,6 @@ ttl list1
 
 
 
-
 ### 总结
 因为 mysql 存在硬盘，并且会执行 sql 的解析，会成为系统的性能瓶颈，所以我们要做一些优化。
 
@@ -131,8 +129,83 @@ redis 几乎和 mysql 一样是后端系统的必用中间件了，它除了用�
 
 
 
-
 ### 资料
 [redis 可视化工具](https://redis.io/thank-you/redisinsight-the-best-redis-gui-35/)
 
 [redis 命令](https://redis.io/docs/latest/commands/)
+
+
+
+
+
+
+## 两种登录状态保存方式：JWT、Session
+那如何实现的这种登录状态的保存呢？
+
+这个问题的解决有两种方案：
+- 服务端存储的 session + cookie 的方案
+- 客户端存储的 jwt token 的方案
+
+但这两种方式也都有各自的缺点。
+
+
+
+### 服务端存储的 session + cookie
+
+#### 小节
+session + cookie 的给 http 添加状态的方案是服务端保存 session 数据，然后把 id 放入 cookie 返回，cookie 是自动携带的，每个请求可以通过 cookie 里的 id 查找到对应的 session，从而实现请求的标识。这种方案能实现需求，但是有 CSRF、分布式 session、跨域等问题，不过都是有解决方案的。
+
+
+
+### 客户端存储的 token
+token 的方案常用 json 格式来保存，叫做 json web token，简称 JWT。
+
+![jwt-1](./imgs/jwt-1.png)
+如图JWT 是由 header、payload、verify signature 三部分组成的：
+
+header 部分保存当前的加密算法，payload 部分是具体存储的数据，verify signature 部分是把 header 和 payload 还有 salt 做一次加密之后生成的。（salt，盐，就是一段任意的字符串，增加随机性）
+
+把状态数据都保存在 payload 部分，这样就实现了有状态的 http:
+![jwt-2](./imgs/jwt-2.png)
+
+
+
+### JWT 的问题：
+#### 安全性
+因为 JWT 把数据直接 Base64 之后就放在了 header 里，那别人就可以轻易从中拿到状态数据，比如用户名等敏感信息，也能根据这个 JWT 去伪造请求。
+
+所以 JWT 要搭配 https 来用，让别人拿不到 header。
+
+#### 性能
+JWT 把状态数据都保存在了 header 里，每次请求都会带上，比起只保存个 id 的 cookie 来说，请求的内容变多了，性能也会差一些。
+
+所以 JWT 里也不要保存太多数据。
+
+#### 没法让 JWT 失效
+session 因为是存在服务端的，那我们就可以随时让它失效，而 JWT 不是，因为是保存在客户端，那我们是没法手动让他失效的。
+
+比如踢人、退出登录、改完密码下线这种功能就没法实现。
+
+但也可以配合 redis 来解决，记录下每个 token 对应的生效状态，每次先去 redis 查下 jwt 是否是可用的，这样就可以让 jwt 失效。
+
+所以说，JWT 的方案虽然解决了很多 session + cookie 的问题，但也不完美。
+
+**小结下：**
+
+JWT 的方案是把状态数据保存在 header 里，每次请求需要手动携带，没有 session + cookie 方案的 CSRF、分布式、跨域的问题，但是也有安全性、性能、没法控制等问题。
+
+
+
+### 总结
+http 是无状态的，也就是请求和请求之间没有关联，但我们很多功能的实现是需要保存状态的。
+
+给 http 添加状态有两种方式：
+- session + cookie：把状态数据保存到服务端，session id 放到 cookie 里返回，这样每次请求会带上 cookie ，通过 id 来查找到对应的 session。这种方案有 CSRF、分布式 session、跨域的问题。
+
+- jwt：把状态保存在 json 格式的 token 里，放到 header 中，需要手动带上，没有 cookie + session 的那些问题，但是也有安全性、性能、没法手动控制失效的问题。
+
+上面这两种方案都不是完美的，但那些问题也都有解决方案。
+
+常用的方案基本是 session + redis、jwt + redis 这种。
+
+软件领域很多情况下都是这样的，某种方案都解决了一些问题，但也相应的带来了一些新的问题。没有银弹，还是要熟悉它们的特点，根据不同的需求灵活选用。
