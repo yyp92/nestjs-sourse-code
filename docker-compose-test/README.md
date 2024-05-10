@@ -100,3 +100,94 @@ docker 的方式需要手动 docker build 来构建 nest 应用的镜像。
 然后 docker-compose up 就可以批量按顺序启动一批容器。
 
 基本上，我们跑 Nest 项目都会依赖别的服务，所以在单台机器跑的时候都是需要用 Docker Compose 的。
+
+
+
+
+
+
+# Docker 容器通信的最简单方式：桥接网络
+
+Docker 的实现原理那节我们讲过，Docker 通过 Namespace 的机制实现了容器的隔离，其中就包括 Network Namespace。
+
+因为每个容器都有独立的 Network Namespace，所以不能直接通过端口访问其他容器的服务。
+
+那如果这个 Network Namespace 不只包括一个 Docker 容器呢？？
+
+可以创建一个 Network Namespace，然后设置到多个 Docker 容器，这样这些容器就在一个 Namespace 下了，不就可以直接访问对应端口了？
+
+Docker 确实支持这种方式，叫做桥接网络。
+
+
+## 命令
+```bash
+# 通过 docker network 来创建
+docker network create common-network
+
+# 然后把之前的 3 个容器停掉、删除，我们重新跑
+docker stop mysql-container redis-container nest-container
+docker rm mysql-container redis-container nest-container
+
+
+
+# 这次跑的时候要指定 --network
+# 通过 --network 指定桥接网络为我们刚创建的 common-network。
+# mysql 容器
+docker run -d --network common-network -v D:\docker-demo:/var/lib/mysql --name mysql-container mysql
+
+# 跑 redis 容器
+docker run -d --network common-network -v D:\docker-demo/redis:/data --name redis-container redis
+
+# 然后 docker build
+docker build -t mmm .
+
+# docker run
+docker run -d --network common-network -p 3000:3000 --name nest-container mmm
+
+# docker logs 看下日志
+docker logs nest-container
+
+
+
+
+
+# Docker Compose 方式
+# 修改完 docker-compose.yml
+docker-compose down --rmi all
+docker-compose up
+```
+
+
+
+
+## 图解原理
+**之前我们是通过宿主机 ip 来互相访问的：**
+![](./imgs/docker-compose-1.png)
+
+**现在可以通过容器名直接互相访问了：**
+![](./imgs/docker-compose-2.png)
+
+**本来是 3 个独立的 Network Namespace：**
+![](./imgs/docker-compose-3.png)
+
+**桥接之后就这样了：**
+![](./imgs/docker-compose-4.png)
+
+
+
+
+## 总结
+上节我们是把 mysql、redis 的端口映射到宿主机，然后 nest 的容器里通过宿主机 ip 访问这两个服务的。
+
+但其实有更方便的方式，就是桥接网络。
+
+通过 docker network create 创建一个桥接网络，然后 docker run 的时候指定 --network，这样 3 个容器就可以通过容器名互相访问了。
+
+在 docker-compose.yml 配置下 networks 创建桥接网络，然后添加到不同的 service 上即可。
+
+或者不配置 networks，docker-compose 会生成一个默认的。
+
+实现原理就是对 Network Namespace 的处理，本来是 3个独立的 Namespace，当指定了 network 桥接网络，就可以在 Namespace 下访问别的 Namespace 了。
+
+多个容器之间的通信方式，用桥接网络是最简便的。
+
