@@ -40,6 +40,13 @@ nest g guard login --no-spec --flat
 
 # 我们还需要再做登录用户的权限控制，所以再写个 PermissionGuard
 nest g guard permission --no-spec --flat
+
+# 引入下 redis
+npm install redis 
+# 新建一个模块来封装 redis 操作
+nest g module redis
+# 新建一个 service
+nest g service redis --no-spec
 ```
 
 
