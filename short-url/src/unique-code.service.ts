@@ -40,7 +40,7 @@ export class UniqueCodeService {
 
     @Cron(CronExpression.EVERY_DAY_AT_4AM)
     async batchGenerateCode() {
-        for(let i = 0; i< 10000; i++) {
+        for (let i = 0; i< 10000; i++) {
             this.generateCode();
         }
     }
