@@ -26,6 +26,16 @@ npm install --save redis
 nest g resource email
 # 安装发送邮件用的包
 npm install nodemailer --save
+
+# 安装 config 的包
+npm install --save @nestjs/config
+
+# 引入 jwt 模块
+npm install --save @nestjs/jwt
+
+# 然后我们加上 LoginGuard 和 PermissionGuard 来做鉴权
+nest g guard login --flat --no-spec
+nest g guard permission --flat --no-spec
 ```
 
 
@@ -55,3 +65,28 @@ npm install nodemailer --save
 /user/register 会根据邮箱地址查询 redis 中的验证码，验证通过会把用户信息保存到表中。
 
 这样，注册功能就完成了。
+
+
+
+
+## 用户管理模块--配置抽离、登录认证鉴权
+
+### 总结
+这节我们实现了配置抽离、基于 jwt 登录、鉴权功能。
+
+配置抽离使用 @nestjs/config 包，把配置放在 src 下的 .env 文件里，然后代码里从 configService 读取配置。
+
+这样可以配置 nest-cli.json 的 assets 和 watchAssets 来自动把 env 文件复制到 dist 目录下。
+
+我们使用代码做的数据初始化，线上要删掉这个接口，用导出的 sql 文件来初始化。
+
+登录成功之后，返回 access_token、refresh_token 还有用户信息、roles、permissions 等。
+
+并支持使用 refreshToken 来刷新 token。
+
+之后使用 LoginGuard、PermissionGuard 来做登录和权限的鉴权，根据 handler 上的 metadata 来确定要不要做鉴权、需要什么权限。
+
+我们还封装了几个自定义装饰器，用于方便的设置 metadata，从 request 取数据注入 handler。
+
+至此，注册、登录、鉴权、配置抽离等功能就完成了。
+
