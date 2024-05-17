@@ -52,6 +52,7 @@ export class AppService {
         
                 const content = await page.$eval('.m-cnt p', el => el.textContent);
                 item.desc = content;
+                item.img = await page.$eval('.g-doc img', el => el.getAttribute('src'));
         
                 observer.next({data: item});
 
