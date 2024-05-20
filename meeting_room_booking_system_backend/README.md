@@ -36,6 +36,12 @@ npm install --save @nestjs/jwt
 # 然后我们加上 LoginGuard 和 PermissionGuard 来做鉴权
 nest g guard login --flat --no-spec
 nest g guard permission --flat --no-spec
+
+# 先加一个修改响应内容的拦截器。把响应的格式改成 {code、message、data} 这种
+nest g interceptor format-response --flat
+
+# 然后再加一个接口访问记录的 interceptor
+nest g interceptor invoke-record --flat
 ```
 
 
@@ -89,4 +95,24 @@ nest g guard permission --flat --no-spec
 我们还封装了几个自定义装饰器，用于方便的设置 metadata，从 request 取数据注入 handler。
 
 至此，注册、登录、鉴权、配置抽离等功能就完成了。
+
+
+
+
+## 会议室预订系统：用户管理模块-- interceptor、修改信息接口
+因为这是在 LoginGuard 里从 jwt 取出来放到 request.user 的，而 Guard 在 interceptor 之前调用：
+
+![](./imgs/metting-room-8.png)
+
+
+### 总结
+这节我们添加了 interceptor 用来对响应格式做转换，改成 {code、message、data} 的格式，用到了 map 操作符。
+
+并且还用 interceptor 实现了接口访问的日志记录，用到 tap 操作符。
+
+然后实现了修改信息、修改密码的接口。
+
+这些流程都差不多，首先实现一个查询的接口用来回显数据，通过 vo 封装返回的数据。
+
+然后提交数据进行更新，用到的 userId 通过之前封装的 @UserInfo 装饰从 request.user 来取。
 
