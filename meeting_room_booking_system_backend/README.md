@@ -48,6 +48,9 @@ nest g filter unlogin --flat
 
 # 直接修改下对 HttpException 的处理逻辑就好了
 nest g filter custom-exception --flat
+
+# 安装 swagger 的包
+npm install --save @nestjs/swagger
 ```
 
 
@@ -140,4 +143,21 @@ nest g filter custom-exception --flat
 模糊搜索就是通过 like 来匹配。
 
 此外，ParseIntPipe 我们自定义了错误格式，还使用了 DefaultValuePipe 设置了默认值。
+
+
+
+
+## 会议室预订系统：用户管理模块-- swagger 接口文档
+### 总结
+这节我们用 swagger 生成了接口文档。
+
+在 main.ts 里调用 SwaggerModule.setup 来生成接口文档。
+
+然后用 @ApiQuery、@ApiBody、@ApiResponse、@ApiProperty 等来标识每个接口的参数和响应。
+
+并且通过 @ApiBearerAuth 标识需要 jwt 认证的接口。
+
+返回对象的接口需要把它封装成 vo，然后再添加 @ApiProperty。
+
+接口文档提供给前端之后，前端就可以基于这个来写页面了。
 
