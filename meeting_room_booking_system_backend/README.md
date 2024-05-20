@@ -42,6 +42,12 @@ nest g interceptor format-response --flat
 
 # 然后再加一个接口访问记录的 interceptor
 nest g interceptor invoke-record --flat
+
+# 新建个 exception filter
+nest g filter unlogin --flat
+
+# 直接修改下对 HttpException 的处理逻辑就好了
+nest g filter custom-exception --flat
 ```
 
 
@@ -115,4 +121,23 @@ nest g interceptor invoke-record --flat
 这些流程都差不多，首先实现一个查询的接口用来回显数据，通过 vo 封装返回的数据。
 
 然后提交数据进行更新，用到的 userId 通过之前封装的 @UserInfo 装饰从 request.user 来取。
+
+
+
+
+## 会议室预订系统：用户管理模块--用户列表和分页查询
+### 总结
+这节我们实现了冻结用户和用户列表接口。
+
+我们通过自定义 exception filter，catch 了 HTTPException，返回了自定义格式的响应，统一了响应格式。
+
+冻结用户接口比较简单，就是修改 users 表的一个字段。
+
+用户列表支持了分页查询和模糊搜索：
+
+分页查询就是根据 (pageNo -1) * pageSize 计算出从哪里开始，然后取 pageSize 条。
+
+模糊搜索就是通过 like 来匹配。
+
+此外，ParseIntPipe 我们自定义了错误格式，还使用了 DefaultValuePipe 设置了默认值。
 

@@ -6,7 +6,7 @@ import {
     HttpStatus
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { RedisService } from 'src/redis/redis.service';
 import { md5 } from 'src/utils';
 import { RegisterUserDto } from './dto/register-user.dto';
@@ -294,6 +294,65 @@ export class UserService {
           this.logger.error(e, UserService);
 
           return '用户信息修改失败';
+        }
+    }
+
+    // 冻结用户
+    async freezeUserById(id: number) {
+        const user = await this.userRepository.findOneBy({
+            id
+        });
+        user.isFrozen = true;
+        
+    
+        await this.userRepository.save(user);
+    }
+
+    // 获取用户列表
+    async findUsersByPage(
+        username: string,
+        nickName: string,
+        email: string,
+        pageNo: number,
+        pageSize: number
+    ) {
+        const condition: Record<string, any> = {};
+
+        // 根据 username、nickName、email 搜索的时候，使用模糊查询。
+        if (username) {
+            condition.username = Like(`%${username}%`);   
+        }
+
+        if (nickName) {
+            condition.nickName = Like(`%${nickName}%`); 
+        }
+
+        if (email) {
+            condition.email = Like(`%${email}%`); 
+        }
+
+        // 当前页码减一乘以 pageSize，就是要跳过的记录数，然后再取 pageSize 条
+        const skipCount = (pageNo - 1) * pageSize;
+    
+        const [users, totalCount] = await this.userRepository.findAndCount({
+            select: [
+                'id',
+                'username',
+                'nickName',
+                'email',
+                'phoneNumber',
+                'isFrozen',
+                'headPic',
+                'createTime'
+            ],
+            skip: skipCount,
+            take: pageSize,
+            where: condition
+        });
+    
+        return {
+            users,
+            totalCount
         }
     }
 }
