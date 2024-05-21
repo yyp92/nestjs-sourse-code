@@ -1,3 +1,4 @@
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
     Controller,
     Get,
@@ -16,6 +17,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import * as path from 'path';
 import {
     ApiTags,
     ApiQuery,
@@ -36,6 +38,8 @@ import { generateParseIntPipe } from 'src/utils';
 import { LoginUserVo } from './vo/login-user.vo';
 import { RefreshTokenVo } from './vo/refresh-token.vo';
 import { UserListVo } from './vo/user-list.vo';
+import { UploadedFile, UseInterceptors } from '@nestjs/common/decorators';
+import { storage } from 'src/my-file-storage';
 
 
 
@@ -134,6 +138,7 @@ export class UserController {
             {
                 userId: vo.userInfo.id,
                 username: vo.userInfo.username,
+                email: vo.userInfo.email,
                 roles: vo.userInfo.roles,
                 permissions: vo.userInfo.permissions
             },
@@ -176,6 +181,7 @@ export class UserController {
             {
                 userId: vo.userInfo.id,
                 username: vo.userInfo.username,
+                email: vo.userInfo.email,
                 roles: vo.userInfo.roles,
                 permissions: vo.userInfo.permissions
             },
@@ -225,6 +231,7 @@ export class UserController {
                 {
                     userId: user.id,
                     username: user.username,
+                    email: user.email,
                     roles: user.roles,
                     permissions: user.permissions
                 },
@@ -285,6 +292,7 @@ export class UserController {
                 {
                     userId: user.id,
                     username: user.username,
+                    email: user.email,
                     roles: user.roles,
                     permissions: user.permissions
                 },
@@ -347,7 +355,7 @@ export class UserController {
 
 
     // 修改密码
-    @ApiBearerAuth()
+    // @ApiBearerAuth()
     @ApiBody({
         type: UpdateUserPasswordDto
     })
@@ -356,16 +364,16 @@ export class UserController {
         description: '验证码已失效/不正确'
     })
     @Post(['update_password', 'admin/update_password'])
-    @RequireLogin()
+    // @RequireLogin()
     async updatePassword(
-        @UserInfo('userId') userId: number,
+        // @UserInfo('userId') userId: number,
         @Body() passwordDto: UpdateUserPasswordDto
     ) {
-        return await this.userService.updatePassword(userId, passwordDto);
+        return await this.userService.updatePassword(passwordDto);
     }
 
     // 修改发送验证码
-    @ApiBearerAuth()
+    // @ApiBearerAuth()
     @ApiQuery({
         name: 'address',
         description: '邮箱地址',
@@ -375,7 +383,7 @@ export class UserController {
         type: String,
         description: '发送成功'
     })
-    @RequireLogin()
+    // @RequireLogin()
     @Get('update_password/captcha')
     async updatePasswordCaptcha(@Query('address') address: string) {
         const code = Math.random().toString().slice(2,8);
@@ -426,7 +434,7 @@ export class UserController {
     })
     @RequireLogin()
     @Get('update/captcha')
-    async updateCaptcha(@Query('address') address: string) {
+    async updateCaptcha(@UserInfo('email') address: string) {
         const code = Math.random().toString().slice(2,8);
 
         await this.redisService.set(
@@ -534,5 +542,36 @@ export class UserController {
             pageNo,
             pageSize,
         );
+    }
+
+    // 上传
+    @Post('upload')
+    @UseInterceptors(FileInterceptor(
+        'file',
+        {
+            dest: 'uploads',
+            storage: storage,
+
+            // 限制下图片大小，最大 3M
+            limits: {
+                fileSize: 1024 * 1024 * 3
+            },
+
+            // 限制下只能上传图片
+            fileFilter(req, file, callback) {
+                const extname = path.extname(file.originalname); 
+
+                if (['.png', '.jpg', '.gif'].includes(extname)) {
+                    callback(null, true);
+                }
+                else {
+                    callback(new BadRequestException('只能上传图片'), false);
+                }
+            }
+        }
+    ))
+    uploadFile(@UploadedFile() file: Express.Multer.File) {
+        console.log('file', file);
+        return file.path;
     }
 }

@@ -199,6 +199,7 @@ export class UserService {
         return {
             id: user.id,
             username: user.username,
+            email: user.email,
             isAdmin: user.isAdmin,
             roles: user.roles.map(item => item.name),
             permissions: user.roles.reduce((arr, item) => {
@@ -224,7 +225,7 @@ export class UserService {
 
     // 修改密码
     async updatePassword(
-        userId: number,
+        // userId: number,
         passwordDto: UpdateUserPasswordDto
     ) {
         // 先查询 redis 中有没有邮箱对应的验证码
@@ -242,8 +243,12 @@ export class UserService {
         // 查到的话再调用 Repository 去更新数据库中的用户密码
         // 检查通过之后根据 id 查询用户信息，修改密码之后 save
         const foundUser = await this.userRepository.findOneBy({
-            id: userId
+            username: passwordDto.username
         });
+
+        if (foundUser.email !== passwordDto.email) {
+            throw new HttpException('邮箱不正确', HttpStatus.BAD_REQUEST);
+        }
     
         foundUser.password = md5(passwordDto.password);
     
