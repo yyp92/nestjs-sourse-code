@@ -51,6 +51,9 @@ nest g filter custom-exception --flat
 
 # 安装 swagger 的包
 npm install --save @nestjs/swagger
+
+# 创建一个 meeting-room 模块
+nest g resource meeting-room
 ```
 
 

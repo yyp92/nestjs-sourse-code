@@ -1,3 +1,4 @@
+import { MeetingRoom } from './meeting-room/entities/meeting-room.entity';
 import { APP_GUARD } from '@nestjs/core';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -13,6 +14,7 @@ import { RedisModule } from './redis/redis.module';
 import { EmailModule } from './email/email.module';
 import { LoginGuard } from './login.guard';
 import { PermissionGuard } from './permission.guard';
+import { MeetingRoomModule } from './meeting-room/meeting-room.module';
 
 @Module({
     imports: [
@@ -47,7 +49,8 @@ import { PermissionGuard } from './permission.guard';
                   entities: [
                         User,
                         Role,
-                        Permission
+                        Permission,
+                        MeetingRoom
                   ],
                   poolSize: 10,
                   connectorPackage: 'mysql2',
@@ -61,6 +64,7 @@ import { PermissionGuard } from './permission.guard';
         UserModule,
         RedisModule,
         EmailModule,
+        MeetingRoomModule,
     ],
     controllers: [AppController],
     providers: [
