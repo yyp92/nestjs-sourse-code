@@ -76,7 +76,7 @@ export class MeetingRoomService {
             take: pageSize,
             where: condition
         })
-    
+
         return {
             meetingRooms,
             totalCount
