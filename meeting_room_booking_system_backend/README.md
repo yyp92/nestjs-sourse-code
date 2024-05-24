@@ -54,6 +54,9 @@ npm install --save @nestjs/swagger
 
 # 创建一个 meeting-room 模块
 nest g resource meeting-room
+
+# 创建一个 booking 模块
+nest g resource booking
 ```
 
 

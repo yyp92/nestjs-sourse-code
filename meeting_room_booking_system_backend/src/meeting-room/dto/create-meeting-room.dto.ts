@@ -22,13 +22,13 @@ export class CreateMeetingRoomDto {
     })
     location: string;
 
-    // @IsNotEmpty()
+    @IsNotEmpty()
     @MaxLength(50, {
         message: '设备最长为 50 字符'
     })
     equipment: string;
 
-    // @IsNotEmpty()
+    @IsNotEmpty()
     @MaxLength(100, {
         message: '描述最长为 100 字符'
     })

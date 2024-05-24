@@ -15,6 +15,8 @@ import { EmailModule } from './email/email.module';
 import { LoginGuard } from './login.guard';
 import { PermissionGuard } from './permission.guard';
 import { MeetingRoomModule } from './meeting-room/meeting-room.module';
+import { BookingModule } from './booking/booking.module';
+import { Booking } from './booking/entities/booking.entity';
 
 @Module({
     imports: [
@@ -50,7 +52,8 @@ import { MeetingRoomModule } from './meeting-room/meeting-room.module';
                         User,
                         Role,
                         Permission,
-                        MeetingRoom
+                        MeetingRoom,
+                        Booking
                   ],
                   poolSize: 10,
                   connectorPackage: 'mysql2',
@@ -65,6 +68,7 @@ import { MeetingRoomModule } from './meeting-room/meeting-room.module';
         RedisModule,
         EmailModule,
         MeetingRoomModule,
+        BookingModule,
     ],
     controllers: [AppController],
     providers: [
