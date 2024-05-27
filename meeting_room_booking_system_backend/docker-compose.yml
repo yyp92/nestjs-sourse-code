@@ -14,8 +14,8 @@ services:
     mysql-container:
         image: mysql
         volumes:
-            # - /Users/guang/mysql-data:/var/lib/mysql
-            - D:\\docker-demo:/var/lib/mysql
+            - /Users/guang/mysql-data:/var/lib/mysql
+            # - D:\\docker-demo:/var/lib/mysql
         environment:
             MYSQL_DATABASE: meeting_room_booking_system
             MYSQL_ROOT_PASSWORD: 123456
@@ -24,8 +24,8 @@ services:
     redis-container:
         image: redis
         volumes:
-            # - /Users/guang/redis-data:/data
-            - D:\\docker-demo\\redis:/data
+            - /Users/guang/redis-data:/data
+            # - D:\\docker-demo\\redis:/data
         networks:
             - common-network
 networks:
