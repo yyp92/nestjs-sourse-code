@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
+import * as path from 'path'
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Permission } from './user/entities/permission.entity';
@@ -36,7 +37,8 @@ import { StatisticModule } from './statistic/statistic.module';
         }),
         ConfigModule.forRoot({
             isGlobal: true,
-            envFilePath: 'src/.env'
+            // envFilePath: 'src/.env'
+            envFilePath: path.join(__dirname, '.env')
         }),
         TypeOrmModule.forRootAsync({
             useFactory(configService: ConfigService) {

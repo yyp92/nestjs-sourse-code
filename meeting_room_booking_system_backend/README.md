@@ -62,6 +62,21 @@ nest g resource booking
 nest g module statistic
 nest g service statistic
 nest g controller statistic
+
+# 用 docker 跑服务
+docker compose up
+
+# 如果你改了 Dockerfile 或者 docker-compose.yml 想重新跑的话，需要先把之前的镜像和容器删掉再跑
+docker-compose down --rmi all
+
+# 购买服务器进行相关部署操作
+# 购买后，链接购买后的服务器
+# 安装 git
+yum install git -y
+# 把 github 的代码下下来
+git clone 你自己的git仓库
+# 在服务安装docker
+# https://help.aliyun.com/zh/ecs/use-cases/deploy-and-use-docker-on-alibaba-cloud-linux-2-instances?spm=a2c4g.2590614.0.i3
 ```
 
 
@@ -172,3 +187,25 @@ nest g controller statistic
 
 接口文档提供给前端之后，前端就可以基于这个来写页面了。
 
+
+
+
+## 代码部署
+**用到 mysql、redis、nginx，它们是这样的关系**
+![](./imgs/meeting-room-9.png)
+
+前端代码由 nginx 托管，处理静态请求。
+
+并且后端服务也会经过 nginx 做反向代理，这样可以做多个 Nest 服务的负载均衡。
+
+Nginx、Mysql、Redis、Nest 服务等都是通过 docker 来跑。
+
+当然，不用一个个的跑，可以通过 Docker Compose 把它们组合成一个整体，一起跑。
+
+开发完之后，本地把代码 push 到 github、gitlab 等代码仓库。
+
+之后服务器上把代码 pull 下来，然后用 docker compose 跑就行
+
+![](./imgs/meeting-room-10.png)
+
+有了 docker，根本不用考虑 mysql、redis、node 等在 linux 下怎么装，直接跑 docker 镜像就行。
