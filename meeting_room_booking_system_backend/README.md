@@ -57,6 +57,11 @@ nest g resource meeting-room
 
 # 创建一个 booking 模块
 nest g resource booking
+
+# 创建一个 statistic 模块
+nest g module statistic
+nest g service statistic
+nest g controller statistic
 ```
 
 
