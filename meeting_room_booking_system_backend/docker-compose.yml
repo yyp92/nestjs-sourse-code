@@ -19,6 +19,7 @@ services:
             # windows 适合本地开发是windows电脑
             # - D:\\docker-demo:/var/lib/mysql
         environment:
+            MYSQL_ROOT_HOST: %
             MYSQL_DATABASE: meeting_room_booking_system
             MYSQL_ROOT_PASSWORD: 123456
         networks:
