@@ -14,7 +14,9 @@ services:
     mysql-container:
         image: mysql
         volumes:
+            # mac
             - /Users/guang/mysql-data:/var/lib/mysql
+            # windows 适合本地开发是windows电脑
             # - D:\\docker-demo:/var/lib/mysql
         environment:
             MYSQL_DATABASE: meeting_room_booking_system
@@ -24,7 +26,9 @@ services:
     redis-container:
         image: redis
         volumes:
+            # mac
             - /Users/guang/redis-data:/data
+            # windows 适合本地开发是windows电脑
             # - D:\\docker-demo\\redis:/data
         networks:
             - common-network
