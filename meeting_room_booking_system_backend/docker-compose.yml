@@ -21,8 +21,8 @@ services:
         environment:
             MYSQL_DATABASE: meeting_room_booking_system
             MYSQL_ROOT_PASSWORD: 123456
-            # MYSQL_USER: root
-            # MYSQL_PASSWORD: 123456
+            MYSQL_USER: root
+            MYSQL_PASSWORD: 123456
             MYSQL_ROOT_HOST: "%"
         networks:
             - common-network
