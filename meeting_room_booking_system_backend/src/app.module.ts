@@ -58,14 +58,13 @@ import { StatisticModule } from './statistic/statistic.module';
                         MeetingRoom,
                         Booking
                     ],
-                    poolSize: 30,
-                    connectTimeout: 300000,
+                    poolSize: 10,
                     connectorPackage: 'mysql2',
                     extra: {
                         authPlugin: 'sha256_password',
-                        connectionLimit: 10, // 连接池大小
-                        charset: 'utf8mb4_unicode_ci', // 字符集
-                        insecureAuth: true, // 允许不安全的认证方式
+                        // connectionLimit: 10, // 连接池大小
+                        // charset: 'utf8mb4_unicode_ci', // 字符集
+                        // insecureAuth: true, // 允许不安全的认证方式
                         host: '0.0.0.0', // 允许所有IP连接
                     }
                 }
