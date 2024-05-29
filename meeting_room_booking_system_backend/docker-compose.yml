@@ -24,6 +24,10 @@ services:
             MYSQL_USER: root
             MYSQL_PASSWORD: 123456
             MYSQL_ROOT_HOST: "%"
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-hlocalhost", "-uroot", "-pexample"]
+            interval: 10s
+            retries: 5
         networks:
             - common-network
     redis-container:
