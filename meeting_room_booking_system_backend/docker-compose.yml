@@ -21,6 +21,8 @@ services:
         environment:
             MYSQL_DATABASE: meeting_room_booking_system
             MYSQL_ROOT_PASSWORD: 123456
+        command: 
+            --default-authentication-plugin=mysql_native_password
         networks:
             - common-network
     redis-container:
