@@ -1,5 +1,15 @@
 version: '3.8'
 services:
+    fe-app:
+        # image: fe-container:first
+        # 阿里云镜像
+        image: registry.cn-qingdao.aliyuncs.com/阿里云镜像-命名空间/阿里云镜像-仓库名称:阿里云镜像-版本号
+        ports:
+        - 80:80
+        depends_on:
+        - nest-app
+        networks:
+        - common-network
     nest-app:
         build:
             context: ./
