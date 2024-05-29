@@ -58,7 +58,8 @@ import { StatisticModule } from './statistic/statistic.module';
                         MeetingRoom,
                         Booking
                     ],
-                    poolSize: 10,
+                    poolSize: 30,
+                    connectTimeout: 300000,
                     connectorPackage: 'mysql2',
                     extra: {
                         authPlugin: 'sha256_password',
