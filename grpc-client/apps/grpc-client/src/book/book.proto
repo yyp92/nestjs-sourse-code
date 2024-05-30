@@ -1,0 +1,19 @@
+// 使用 proto3 版本的语法
+syntax = "proto3";
+
+// 是当前包为 book，也就是一种命名空间
+package book;
+
+service BookService {
+    rpc FindBook (BookById) returns (Book) {}
+}
+
+message BookById {
+    int32 id = 1;
+}
+
+message Book {
+    int32 id = 1;
+    string name = 2;
+    string desc = 3;
+}
