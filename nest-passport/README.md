@@ -9,6 +9,7 @@ nest new nest-passport
 # 安装 passport
 npm install --save @nestjs/passport passport
 
+# 用户名密码认证
 # 这用到 passport-local 的策略，安装下
 npm install --save passport-local
 npm install --save-dev @types/passport-local
@@ -24,6 +25,7 @@ nest g service user --no-spec
 # 安装用到的jwt包
 npm install --save @nestjs/jwt
 
+# jwt 认证
 # 安装用到的包
 npm install --save passport-jwt
 npm install --save-dev @types/passport-jwt
