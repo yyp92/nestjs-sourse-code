@@ -1,0 +1,26 @@
+type TodoItem {
+    id: Int
+    content: String
+}
+
+input CreateTodoItemInput {
+    content: String
+}
+
+input UpdateTodoItemInput {
+    id: Int!
+    content: String
+}
+
+# 在 Query 下定义查询的接口
+type Query {
+    todolist: [TodoItem]!
+    queryById(id: Int!): TodoItem
+}
+
+# 在 Mutation 下定义增删改的接口
+type Mutation {
+    createTodoItem(todoItem: CreateTodoItemInput!): TodoItem!
+    updateTodoItem(todoItem: UpdateTodoItemInput!): TodoItem!
+    removeTodoItem(id: Int!): Int
+}
