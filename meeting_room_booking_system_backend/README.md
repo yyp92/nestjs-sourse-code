@@ -77,6 +77,20 @@ yum install git -y
 git clone 你自己的git仓库
 # 在服务安装docker
 # https://help.aliyun.com/zh/ecs/use-cases/deploy-and-use-docker-on-alibaba-cloud-linux-2-instances?spm=a2c4g.2590614.0.i3
+
+
+
+# 数据库迁移
+# migration:generate
+npm run migration:generate src/migrations/init
+npm run migration:run
+
+# 表创建好了，还要做初始化数据。
+# 我们同样通过 migration 来做，但是这个是没法 generate 的，generate 只会对比表结构，然后生成迁移 sql。
+# 执行 create 生成 migration 类：
+npm run migration:create src/migrations/data
+npm run migration:run
+
 ```
 
 
@@ -209,3 +223,20 @@ Nginx、Mysql、Redis、Nest 服务等都是通过 docker 来跑。
 ![](./imgs/meeting-room-10.png)
 
 有了 docker，根本不用考虑 mysql、redis、node 等在 linux 下怎么装，直接跑 docker 镜像就行。
+
+
+
+
+
+## 会议室预定系统：用 migration 初始化表和数据
+这节我们实现了 migration 数据迁移，也就是创建表、初始化数据。
+
+在生产环境会把 synchronize 关掉，然后跑 migration。
+
+我们用 migration:generate 生成了 create table 的 migration。
+
+然后用 migration:create 生成了空的 migration，填入了导出的 inert 语句。
+
+执行完这两个 migration 之后，表和数据就都有了，就可以跑 Nest 项目了。
+
+线上项目，都是这样用手动跑 migration 的方式来修改表的。
