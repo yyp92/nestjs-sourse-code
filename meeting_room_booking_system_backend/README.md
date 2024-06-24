@@ -91,6 +91,14 @@ npm run migration:run
 npm run migration:create src/migrations/data
 npm run migration:run
 
+
+# oss
+# 安装 minio 的包
+npm install --save minio
+# 创建个 minio 模块
+nest g module minio
+# 然后创建 MinioController
+nest g controller minio --no-spec
 ```
 
 
@@ -240,3 +248,19 @@ Nginx、Mysql、Redis、Nest 服务等都是通过 docker 来跑。
 执行完这两个 migration 之后，表和数据就都有了，就可以跑 Nest 项目了。
 
 线上项目，都是这样用手动跑 migration 的方式来修改表的。
+
+
+
+
+## 会议室预定系统：文件上传 OSS
+
+### 总结
+这节我们把文件上传从基于 multer 实现，保存在项目目录下，换成了基于 minio 实现的 OSS 服务。
+
+我们是用前端直传 OSS，然后把文件 url 发给应用服务器的方式。
+
+但是又不想在前端代码暴露 accessKey，所以是用的预签名的方式，服务端用 presignedPutObject 返回一个预签名 url 给前端。前端用这个 url 来发送 put 请求，来把文件直传 minio。
+
+antd 的 Dragger 组件默认用 form data 来发送请求，我们通过 customRequest 来重写了上传逻辑。
+
+这样，文件就都保存在了 minio 服务里，可以更方便的管理。
