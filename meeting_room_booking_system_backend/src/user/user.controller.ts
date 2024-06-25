@@ -38,8 +38,9 @@ import { generateParseIntPipe } from 'src/utils';
 import { LoginUserVo } from './vo/login-user.vo';
 import { RefreshTokenVo } from './vo/refresh-token.vo';
 import { UserListVo } from './vo/user-list.vo';
-import { UploadedFile, UseInterceptors } from '@nestjs/common/decorators';
+import { Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common/decorators';
 import { storage } from 'src/my-file-storage';
+import { AuthGuard } from '@nestjs/passport';
 
 
 
@@ -130,10 +131,9 @@ export class UserController {
         description: '用户信息和 token',
         type: LoginUserVo
     })
+    @UseGuards(AuthGuard('local'))
     @Post('login')
-    async userLogin(@Body() loginUser: LoginUserDto) {
-        const vo = await this.userService.login(loginUser, false);
-
+    async userLogin(@UserInfo() vo: LoginUserVo) {
         vo.accessToken = this.jwtService.sign(
             {
                 userId: vo.userInfo.id,
@@ -158,6 +158,33 @@ export class UserController {
 
         return vo;
     }
+    // async userLogin(@Body() loginUser: LoginUserDto) {
+    //     const vo = await this.userService.login(loginUser, false);
+
+    //     vo.accessToken = this.jwtService.sign(
+    //         {
+    //             userId: vo.userInfo.id,
+    //             username: vo.userInfo.username,
+    //             email: vo.userInfo.email,
+    //             roles: vo.userInfo.roles,
+    //             permissions: vo.userInfo.permissions
+    //         },
+    //         {
+    //             expiresIn: this.configService.get('jwt_access_token_expires_time') || '30m'
+    //         }
+    //     );
+    
+    //     vo.refreshToken = this.jwtService.sign(
+    //         {
+    //             userId: vo.userInfo.id
+    //         },
+    //         {
+    //             expiresIn: this.configService.get('jwt_refresh_token_expres_time') || '7d'
+    //         }
+    //     );
+
+    //     return vo;
+    // }
 
     // 后台管理登录
     @ApiBody({
@@ -265,6 +292,110 @@ export class UserController {
             throw new UnauthorizedException('token 已失效，请重新登录');
         }
     }
+
+    // 触发登录
+    @Get('google')
+    @UseGuards(AuthGuard('google'))
+    async googleAuth() {}
+
+    // 回调
+    @Get('callback/google')
+    @UseGuards(AuthGuard('google'))
+    async googleAuthRedirect(@Req() req) {
+        if (!req.user) {
+            throw new BadRequestException('google 登录失败');
+        }
+
+        const foundUser = await this.userService.findUserByEmail(req.user.email);
+
+        if (foundUser) {
+            const vo = new LoginUserVo();
+            vo.userInfo = {
+                id: foundUser.id,
+                username: foundUser.username,
+                nickName: foundUser.nickName,
+                email: foundUser.email,
+                phoneNumber: foundUser.phoneNumber,
+                headPic: foundUser.headPic,
+                createTime: foundUser.createTime.getTime(),
+                isFrozen: foundUser.isFrozen,
+                isAdmin: foundUser.isAdmin,
+                roles: foundUser.roles.map(item => item.name),
+                permissions: foundUser.roles.reduce((arr, item) => {
+                    item.permissions.forEach(permission => {
+                        if(arr.indexOf(permission) === -1) {
+                            arr.push(permission);
+                        }
+                    })
+                    return arr;
+                }, [])
+            }
+            vo.accessToken = this.jwtService.sign({
+            userId: vo.userInfo.id,
+            username: vo.userInfo.username,
+            email: vo.userInfo.email,
+            roles: vo.userInfo.roles,
+            permissions: vo.userInfo.permissions
+            }, {
+            expiresIn: this.configService.get('jwt_access_token_expires_time') || '30m'
+            });
+
+            vo.refreshToken = this.jwtService.sign({
+            userId: vo.userInfo.id
+            }, {
+            expiresIn: this.configService.get('jwt_refresh_token_expres_time') || '7d'
+            });
+        
+            return vo;
+        }
+        else {
+            const user = await this.userService.registerByGoogleInfo(
+                req.user.email, 
+                req.user.firstName + ' ' + req.user.lastName,
+                req.user.picture
+            );
+        
+            const vo = new LoginUserVo();
+            vo.userInfo = {
+                id: user.id,
+                username: user.username,
+                nickName: user.nickName,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+                headPic: user.headPic,
+                createTime: user.createTime.getTime(),
+                isFrozen: user.isFrozen,
+                isAdmin: user.isAdmin,
+                roles: [],
+                permissions: []
+            }
+        
+            vo.accessToken = this.jwtService.sign(
+                {
+                    userId: vo.userInfo.id,
+                    username: vo.userInfo.username,
+                    email: vo.userInfo.email,
+                    roles: vo.userInfo.roles,
+                    permissions: vo.userInfo.permissions
+                },
+                {
+                    expiresIn: this.configService.get('jwt_access_token_expires_time') || '30m'
+                }
+            );
+        
+            vo.refreshToken = this.jwtService.sign(
+                {
+                    userId: vo.userInfo.id
+                },
+                {
+                    expiresIn: this.configService.get('jwt_refresh_token_expres_time') || '7d'
+                }
+            );
+        
+            return vo;
+        }
+    }
+
 
     @ApiQuery({
         name: 'refreshToken',

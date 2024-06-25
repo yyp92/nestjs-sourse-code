@@ -99,6 +99,21 @@ npm install --save minio
 nest g module minio
 # 然后创建 MinioController
 nest g controller minio --no-spec
+
+
+# 第三方登录
+# 安装 passport 的包
+npm install --save @nestjs/passport passport
+# 安装用户名密码认证的 passport-local 策略包
+npm install --save passport-local
+npm install --save-dev @types/passport-local
+# 然后创建一个认证模块：
+nest g module auth
+# passport 的网站
+# 安装下
+npm install --save passport-google-oauth20
+npm install --save-dev @types/passport-google-oauth20
+
 ```
 
 
@@ -264,3 +279,21 @@ Nginx、Mysql、Redis、Nest 服务等都是通过 docker 来跑。
 antd 的 Dragger 组件默认用 form data 来发送请求，我们通过 customRequest 来重写了上传逻辑。
 
 这样，文件就都保存在了 minio 服务里，可以更方便的管理。
+
+
+
+
+## Google 账号登录后端开发
+我们的应用之前只支持用户名密码登录，今天实现了 google 登录的后端部分。
+
+首先我们把用户名密码的身份认证改成了用 passport。
+
+当然，这不是必须的，每个策略都是可以独立用的。
+
+然后我们创建了新的 google 应用，拿到 client id 和 client secret。
+
+用 passport-google-oauth20 的策略来实现了 google 登录。
+
+在 callback 的路由里，基于 google 返回的信息做了自动注册，如果用户已经注册过，就直接返回登录信息。
+
+google 登录同样是返回 userInfo、accessToken、refreshToken 的，和之前的用户名密码登录一样，后续流程也都一样。

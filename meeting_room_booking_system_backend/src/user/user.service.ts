@@ -10,7 +10,7 @@ import { Like, Repository } from 'typeorm';
 import { RedisService } from 'src/redis/redis.service';
 import { md5 } from 'src/utils';
 import { RegisterUserDto } from './dto/register-user.dto';
-import { User } from './entities/user.entity';
+import { LoginType, User } from './entities/user.entity';
 import { Role } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -75,6 +75,23 @@ export class UserService {
             }
     }
 
+    // email、nickName、headPic 都是基于 google 返回的信息
+    async registerByGoogleInfo(email: string, nickName: string, headPic: string) {
+        const newUser = new User();
+        newUser.email = email;
+        newUser.nickName = nickName;
+        newUser.headPic = headPic;
+        newUser.password = '';
+
+        // username 我们就用 email + 随机数的方式生成，反正也不需要用用户名密码登录，保证唯一就行。
+        newUser.username = email + Math.random().toString().slice(2, 10);
+
+        newUser.loginType = LoginType.GOOGLE;
+        newUser.isAdmin = false;
+    
+        return this.userRepository.save(newUser);
+    }    
+
     // 初始化数据
     async initData() {
         const user1 = new User();
@@ -136,6 +153,7 @@ export class UserService {
         const user = await this.userRepository.findOne({
             where: {
                 username: loginUserDto.username,
+                loginType: LoginType.USERNAME_PASSWORD,
                 isAdmin
             },
 
@@ -367,4 +385,16 @@ export class UserService {
         //     totalCount
         // }
     }
+
+    async findUserByEmail(email: string) {
+        const user =  await this.userRepository.findOne({
+            where: {
+                email: email,
+                isAdmin: false,
+            },
+            relations: [ 'roles', 'roles.permissions']
+        });
+    
+        return user;
+    }    
 }
