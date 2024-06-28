@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-google-oauth20';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
-    constructor() {
+    constructor(configService: ConfigService) {
         super({
             // * 从 google credentials 中获取
-            clientID: 'xxx',
-            clientSecret: 'xxx',
-            callbackURL: 'http://localhost:3005/user/callback/google',
+            clientID: configService.get('google_login_client_id'),
+            clientSecret: configService.get('google_login_client_secret'),
+            callbackURL: configService.get('google_login_callback_url'),
             scope: ['email', 'profile'],
         });
     }

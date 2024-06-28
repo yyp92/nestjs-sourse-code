@@ -297,3 +297,15 @@ antd 的 Dragger 组件默认用 form data 来发送请求，我们通过 custom
 在 callback 的路由里，基于 google 返回的信息做了自动注册，如果用户已经注册过，就直接返回登录信息。
 
 google 登录同样是返回 userInfo、accessToken、refreshToken 的，和之前的用户名密码登录一样，后续流程也都一样。
+
+
+
+
+## 后端代码优化
+这节我们对后端代码做了一些优化：
+- .env：分开了 .dev.env 和 .env 分别用于开发和生产环境，分别用不同的配置。
+- docker-compose.yml：添加了 minio 的容器，和 nest 集成成功，并且添加了 mysql 容器启动时设置字符集的命令，还添加了 restart 容器重启配置
+- dto：用 mapped-types 包的 PickTypes 等 api 对 dto 做了简化，直接复用已有 dto 的字段
+- captcha：验证码用完之后就从 redis 中删掉，并且前端提示验证码失效
+
+开发的时候只想着完成功能，但代码中有很多可以优化的点，这些可以逐步优化。

@@ -39,8 +39,13 @@ import { AuthModule } from './auth/auth.module';
         }),
         ConfigModule.forRoot({
             isGlobal: true,
+
             // envFilePath: 'src/.env'
-            envFilePath: path.join(__dirname, '.env')
+            // envFilePath: path.join(__dirname, '.env')
+            envFilePath: [
+                path.join(__dirname, '.env'),
+                path.join(__dirname, '.dev.env'),
+            ]
         }),
         TypeOrmModule.forRootAsync({
             useFactory(configService: ConfigService) {

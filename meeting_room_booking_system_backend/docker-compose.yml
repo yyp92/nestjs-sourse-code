@@ -1,15 +1,15 @@
 version: '3.8'
 services:
-    fe-app:
-        # image: fe-container:first
-        # 阿里云镜像
-        image: registry.cn-qingdao.aliyuncs.com/阿里云镜像-命名空间/阿里云镜像-仓库名称:阿里云镜像-版本号
-        ports:
-        - 80:80
-        depends_on:
-        - nest-app
-        networks:
-        - common-network
+    # fe-app:
+    #     # image: fe-container:first
+    #     # 阿里云镜像
+    #     image: registry.cn-qingdao.aliyuncs.com/阿里云镜像-命名空间/阿里云镜像-仓库名称:阿里云镜像-版本号
+    #     ports:
+    #     - 80:80
+    #     depends_on:
+    #     - nest-app
+    #     networks:
+    #     - common-network
     nest-app:
         build:
             context: ./
@@ -19,6 +19,7 @@ services:
             - redis-container
         ports:
             - 3005:3005
+        restart: always
         networks:
             - common-network
     mysql-container:
@@ -34,7 +35,10 @@ services:
             MYSQL_USER: root
             MYSQL_PASSWORD: 123456
             MYSQL_ROOT_HOST: "%"
-        command: --bind-address=0.0.0.0
+        # command: --bind-address=0.0.0.0
+        # 设置默认字符集
+        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci 
+        restart: always
         networks:
             - common-network
     redis-container:
@@ -44,6 +48,20 @@ services:
             - /Users/guang/redis-data:/data
             # windows 适合本地开发是windows电脑
             # - D:\\docker-demo\\redis:/data
+        restart: always
+        networks:
+            - common-network
+    minio-container:
+        image: bitnami/minio:latest
+        ports:
+            - 9000:9000
+            - 9001:9001
+        volumes:
+            - /Users/guang/minio:/bitnami/minio/data
+        environment:
+            MINIO_ROOT_USER: guang
+            MINIO_ROOT_PASSWORD: dongdong
+        restart: always
         networks:
             - common-network
 networks:

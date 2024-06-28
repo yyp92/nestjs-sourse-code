@@ -500,7 +500,13 @@ export class UserController {
         // @UserInfo('userId') userId: number,
         @Body() passwordDto: UpdateUserPasswordDto
     ) {
-        return await this.userService.updatePassword(passwordDto);
+        const res = await this.userService.updatePassword(passwordDto);
+
+        this.redisService.del(`update_password_captcha_${passwordDto.email}`);
+
+        return res;
+
+        // return await this.userService.updatePassword(passwordDto);
     }
 
     // 修改发送验证码
@@ -554,7 +560,13 @@ export class UserController {
         @UserInfo('userId') userId: number, 
         @Body() updateUserDto: UpdateUserDto
     ) {
-        return await this.userService.update(userId, updateUserDto); 
+        const res = await this.userService.update(userId, updateUserDto);
+
+        this.redisService.del(`update_user_captcha_${updateUserDto.email}`);
+
+        return  res;
+
+        // return await this.userService.update(userId, updateUserDto); 
     }
 
     // 获取修改信息验证码
