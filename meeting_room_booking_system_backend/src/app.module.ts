@@ -5,6 +5,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import * as path from 'path'
+import { WINSTON_MODULE_NEST_PROVIDER, WinstonLogger, WinstonModule, utilities } from 'nest-winston';
+import * as winston from 'winston'
+import 'winston-daily-rotate-file'
+import { CustomTypeOrmLogger } from './ustomTypeOrmLogger';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Permission } from './user/entities/permission.entity';
@@ -48,7 +52,7 @@ import { AuthModule } from './auth/auth.module';
             ]
         }),
         TypeOrmModule.forRootAsync({
-            useFactory(configService: ConfigService) {
+            useFactory(configService: ConfigService, logger: WinstonLogger) {
                 return {
                     type: "mysql",
                     host: configService.get('mysql_server_host'),
@@ -58,6 +62,7 @@ import { AuthModule } from './auth/auth.module';
                     database: configService.get('mysql_server_database'),
                     synchronize: false,
                     logging: true,
+                    logger: new CustomTypeOrmLogger(logger),
                     entities: [
                         User,
                         Role,
@@ -76,7 +81,44 @@ import { AuthModule } from './auth/auth.module';
                     }
                 }
               },
-              inject: [ConfigService]
+              inject: [ConfigService, WINSTON_MODULE_NEST_PROVIDER]
+        }),
+        WinstonModule.forRootAsync({
+            useFactory: (configService: ConfigService) => ({
+                // 日志输出级别是 debug
+                level: 'debug',
+
+                // 输出到的 transport 包括 console 和 file
+                transports: [
+                    // new winston.transports.File({
+                    //     filename: `${process.cwd()}/log`,
+                    // }),
+
+                    // 指定目录为 daily-log，然后指定文件名的格式和日期格式，文件最大的大小为 10k。
+                    new (winston.transports as any).DailyRotateFile({
+                        level: configService.get('winston_log_level'),
+                        dirname: configService.get('winston_log_dirname'),
+                        filename: configService.get('winston_log_filename'),
+                        datePattern: configService.get('winston_log_date_pattern'),
+                        maxSize: configService.get('winston_log_max_size')
+                    }),
+                      
+                    new winston.transports.Console({
+                        format: winston.format.combine(
+                            winston.format.timestamp(),
+                            utilities.format.nestLike(),
+                        ),
+                    }),
+
+                    // 可以加一个 Http 的 transport 来上传日志
+                    new winston.transports.Http({
+                        host: 'localhost',
+                        port: 3002,
+                        path: '/log'
+                    })
+                ],
+            }),
+            inject: [ConfigService]
         }),
         UserModule,
         RedisModule,
