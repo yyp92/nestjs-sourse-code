@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, BadRequestException, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Patch, Param, Delete, Put, BadRequestException, UseInterceptors, UploadedFile } from '@nestjs/common';
 import * as path from 'path'
 import { FileInterceptor } from '@nestjs/platform-express';
 import { BookService } from './book.service';
@@ -12,8 +12,8 @@ export class BookController {
     constructor(private readonly bookService: BookService) {}
 
     @Get('list')
-    async list() {
-        return this.bookService.list();
+    async list(@Query('name') name: string) {
+        return this.bookService.list(name);
     }
 
     @Get(':id')
