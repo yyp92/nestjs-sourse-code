@@ -7,7 +7,7 @@ import { CustomDecoratorService } from './custom-decorator.service';
 import { CustomDecoratorController } from './custom-decorator.controller';
 
 @Module({
-  controllers: [CustomDecoratorController],
-  providers: [CustomDecoratorService],
+    controllers: [CustomDecoratorController],
+    providers: [CustomDecoratorService],
 })
-export class CustomDecoratorModule {}
+export class CustomDecoratorModule { }

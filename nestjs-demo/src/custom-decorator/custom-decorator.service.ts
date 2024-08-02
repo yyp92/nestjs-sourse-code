@@ -4,7 +4,7 @@ import { UpdateCustomDecoratorDto } from './dto/update-custom-decorator.dto';
 
 @Injectable()
 export class CustomDecoratorService {
-  getText() {
-    return 'CustomDecoratorService'
-  }
+    getText() {
+        return 'CustomDecoratorService'
+    }
 }

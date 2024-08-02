@@ -11,18 +11,18 @@ import { AllDecoratorController } from './all-decorator.controller';
  * @Module声明模块
  */
 @Module({
-  controllers: [AllDecoratorController],
-  providers: [
-    AllDecoratorService,
+    controllers: [AllDecoratorController],
+    providers: [
+        AllDecoratorService,
 
-    {
-      provide: 'Guang',
-      useFactory() {
-        return {
-          name: 'guang'
+        {
+            provide: 'Guang',
+            useFactory() {
+                return {
+                    name: 'guang'
+                }
+            }
         }
-      }
-    }
-  ],
+    ],
 })
-export class AllDecoratorModule {}
+export class AllDecoratorModule { }
