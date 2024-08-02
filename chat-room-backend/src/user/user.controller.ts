@@ -1,8 +1,11 @@
 import { Controller, Post, Body, Inject, Get, Query } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { EmailService } from 'src/email/email.service';
 import { RedisService } from 'src/redis/redis.service';
+import { LoginUserDto } from './dto/login-user.dto';
+
 
 @Controller('user')
 export class UserController {
@@ -13,6 +16,9 @@ export class UserController {
 
     @Inject(RedisService)
     private redisService: RedisService;
+
+    @Inject(JwtService)
+    private jwtService: JwtService;
 
     @Post('register')
     async register(@Body() registerUser: RegisterUserDto) {
@@ -32,5 +38,23 @@ export class UserController {
         });
         
         return '发送成功';
+    }
+
+    @Post('login')
+    async userLogin(@Body() loginUser: LoginUserDto) {
+        const user = await this.userService.login(loginUser);
+
+        return {
+            user,
+            token: this.jwtService.sign(
+                {
+                    userId: user.id,
+                    username: user.username
+                },
+                {
+                    expiresIn: '7d'
+                }
+            )
+        }
     }
 }

@@ -37,4 +37,10 @@ npm install --save redis
 nest g resource email --no-spec
 # 安装发送邮件用的包
 npm install nodemailer --save
+
+# 引入下 jwt 的包
+npm install --save @nestjs/jwt
+
+# 然后我们加上 AuthGuard 来做登录鉴权
+nest g guard auth --flat --no-spec
 ```
