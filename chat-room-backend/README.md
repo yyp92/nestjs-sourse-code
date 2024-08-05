@@ -43,4 +43,14 @@ npm install --save @nestjs/jwt
 
 # 然后我们加上 AuthGuard 来做登录鉴权
 nest g guard auth --flat --no-spec
+
+
+
+# 执行 migrate dev 生成这个 friendship 表
+npx prisma migrate dev --name friendship
+# 生成请求添加好友表
+npx prisma migrate dev --name friend_request
+
+# 添加一个新的模块
+nest g resource friendship --no-spec
 ```
