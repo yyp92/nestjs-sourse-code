@@ -4,6 +4,7 @@ import { FriendAddDto } from './dto/friend-add.dto';
 import { RequireLogin, UserInfo } from 'src/custom.decorator';
 
 @Controller('friendship')
+@RequireLogin()
 export class FriendshipController {
     constructor(private readonly friendshipService: FriendshipService) { }
 
@@ -15,7 +16,6 @@ export class FriendshipController {
 
     // 添加好友
     @Post('add')
-    @RequireLogin()
     async add(@Body() friendAddDto: FriendAddDto, @UserInfo("userId") userId: number) {
         return this.friendshipService.add(friendAddDto, userId);
     }
