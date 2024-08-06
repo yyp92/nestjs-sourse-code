@@ -59,4 +59,9 @@ npx prisma migrate dev --name chatroom
 
 # 创建一个聊天室模块
 nest g resource chatroom --no-spec
+
+# 创建个 minio 模块
+nest g module minio、
+# 然后创建 MinioController
+nest g controller minio --no-spec
 ```
