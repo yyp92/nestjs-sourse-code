@@ -53,4 +53,10 @@ npx prisma migrate dev --name friend_request
 
 # 添加一个新的模块
 nest g resource friendship --no-spec
+
+# 创建 聊天室 表
+npx prisma migrate dev --name chatroom
+
+# 创建一个聊天室模块
+nest g resource chatroom --no-spec
 ```

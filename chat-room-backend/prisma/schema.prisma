@@ -40,20 +40,38 @@ model Friendship {
 }
 
 model FriendRequest {
-    id         Int      @id @default(autoincrement())
+    id Int @id @default(autoincrement())
 
     // 请求发送方
     fromUserId Int
 
     // 待添加好友
-    toUserId   Int
+    toUserId Int
 
     // 添加理由
-    reason     String   @db.VarChar(100)
+    reason String @db.VarChar(100)
 
     // 状态,0.请求中,1.已同意,2.已拒绝
-    status     Int
-    
+    status Int
+
     createTime DateTime @default(now())
     updateTime DateTime @updatedAt
+}
+
+// chatroom 表保存聊天室信息
+model Chatroom {
+    id         Int      @id @default(autoincrement())
+    name       String   @db.VarChar(50)
+    // 聊天室类型 true 群聊 false 单聊
+    type       Boolean  @default(false)
+    createTime DateTime @default(now())
+    updateTime DateTime @updatedAt
+}
+
+// user_chatroom 表保存聊天室里有哪些用户，或者说用户在哪些聊天室
+model UserChatroom {
+    userId     Int
+    chatroomId Int
+
+    @@id([userId, chatroomId])
 }
