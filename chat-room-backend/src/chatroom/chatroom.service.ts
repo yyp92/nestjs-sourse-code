@@ -54,7 +54,7 @@ export class ChatroomService {
     }
 
     // 首先查询 userId 的所有 chatrooms 的 id，然后查询 id 对应的 chatroom
-    async list(userId: number) {
+    async list(userId: number, name: string) {
         const chatroomIds = await this.prismaService.userChatroom.findMany({
             where: {
                 userId
@@ -68,6 +68,9 @@ export class ChatroomService {
             where: {
                 id: {
                     in: chatroomIds.map(item => item.chatroomId)
+                },
+                name: {
+                    contains: name
                 }
             },
             select: {

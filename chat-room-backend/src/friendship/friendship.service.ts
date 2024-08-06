@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FriendAddDto } from './dto/friend-add.dto';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class FriendshipService {
@@ -75,7 +76,7 @@ export class FriendshipService {
     
     // 获取好友列表
     // 我们要查询 userId 或者 friendId 为当前用户的记录，把 id 去重并去掉自身后，查询对应的用户信息。
-    async getFriendship(userId: number) {
+    async getFriendship(userId: number, name: string) {
         const friends = await this.prismaService.friendship.findMany({
             where: {
                 OR: [
@@ -115,7 +116,7 @@ export class FriendshipService {
             res.push(user)
         }
 
-        return res
+        return res.filter((item: User) => item.nickName.includes(name))
     }
 
     async remove(friendId: number, userId: number) {

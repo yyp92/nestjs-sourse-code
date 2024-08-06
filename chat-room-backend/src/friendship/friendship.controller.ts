@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Param, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Get, Post, Param, Query, BadRequestException } from '@nestjs/common';
 import { FriendshipService } from './friendship.service';
 import { FriendAddDto } from './dto/friend-add.dto';
 import { RequireLogin, UserInfo } from 'src/custom.decorator';
@@ -9,8 +9,8 @@ export class FriendshipController {
     constructor(private readonly friendshipService: FriendshipService) { }
 
     @Get('list')
-    async friendship(@UserInfo('userId') userId: number) {
-        return this.friendshipService.getFriendship(userId);
+    async friendship(@UserInfo('userId') userId: number, @Query('name') name: string) {
+        return this.friendshipService.getFriendship(userId, name)
     }
 
 
