@@ -64,4 +64,15 @@ nest g resource chatroom --no-spec
 nest g module minio、
 # 然后创建 MinioController
 nest g controller minio --no-spec
+
+# 创建一个 websocket 模块
+nest g resource chat --no-spec
+# 安装 websocket 的包
+npm i --save @nestjs/websockets @nestjs/platform-socket.io socket.io
+
+# 生成聊天记录表
+npx prisma migrate dev --name chat-history
+
+# 创建 chat-history 模块
+nest g resource chat-history --no-spec
 ```
