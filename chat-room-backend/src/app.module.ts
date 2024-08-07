@@ -14,6 +14,7 @@ import { ChatroomModule } from './chatroom/chatroom.module';
 import { MinioModule } from './minio/minio.module';
 import { ChatModule } from './chat/chat.module';
 import { ChatHistoryModule } from './chat-history/chat-history.module';
+import { FavoriteModule } from './favorite/favorite.module';
 
 @Module({
     imports: [
@@ -38,6 +39,7 @@ import { ChatHistoryModule } from './chat-history/chat-history.module';
         MinioModule,
         ChatModule,
         ChatHistoryModule,
+        FavoriteModule,
     ],
     controllers: [AppController],
     providers: [

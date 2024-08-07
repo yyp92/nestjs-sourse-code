@@ -75,4 +75,9 @@ npx prisma migrate dev --name chat-history
 
 # 创建 chat-history 模块
 nest g resource chat-history --no-spec
+
+# 生成收藏表
+npx prisma migrate dev --name favorite
+# 创建一个模块
+nest g resource favorite --no-spec
 ```
