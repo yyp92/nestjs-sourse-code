@@ -159,7 +159,7 @@ export class ChatroomService {
         }
     }
 
-    async join(id: number, userId: number) {
+    async join(id: number, username: string) {
         const chatroom = await this.prismaService.chatroom.findUnique({
             where: {
                 id
@@ -167,12 +167,22 @@ export class ChatroomService {
         })
 
         if (chatroom.type === false) {
-            throw new BadRequestException('一对一聊天室不能加人');
+            throw new BadRequestException('一对一聊天室不能加人')
+        }
+
+        const user = await this.prismaService.user.findUnique({
+            where: {
+                username
+            }
+        })
+
+        if (!user) {
+            throw new BadRequestException('用户不存在')
         }
 
         await this.prismaService.userChatroom.create({
             data: {
-                userId,
+                userId: user.id,
                 chatroomId: id
             }
         })
