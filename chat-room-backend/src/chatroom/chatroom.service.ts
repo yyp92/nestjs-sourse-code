@@ -32,7 +32,9 @@ export class ChatroomService {
             }
         })
 
-        return '创建成功'
+        return id
+
+        // return '创建成功'
     }
 
     async createGroupChatroom(name: string, userId: number) {
@@ -93,6 +95,17 @@ export class ChatroomService {
                     userId: true
                 }
             })
+
+            // 返回聊天室列表的时候，如果是一对一聊天室，就查询下对方用户的信息，用他的名字替换聊天室名字
+            if (chatrooms[i].type === false) {
+                const user = await this.prismaService.user.findUnique({
+                    where: {
+                        id: userIds.filter(item => item.userId !== userId)[0].userId
+                    }
+                })
+
+                chatrooms[i].name = user.nickName
+            }
 
             res.push({
                 ...chatrooms[i],
@@ -177,14 +190,53 @@ export class ChatroomService {
         if (chatroom.type === false) {
             throw new BadRequestException('一对一聊天室不能退出')
         }
-    
+
         await this.prismaService.userChatroom.deleteMany({
             where: {
                 userId,
                 chatroomId: id
             }
         })
-    
+
         return '退出成功'
-    }    
+    }
+
+    // 因为我们没用外键关联，实现起来麻烦一些
+    async queryOneToOneChatroom(userId1: number, userId2: number) {
+        // 先查询 userId1 的所有 chatrooms，再查询 userId2 的所有 chatrooms2
+        const chatrooms = await this.prismaService.userChatroom.findMany({
+            where: {
+                userId: userId1
+            }
+        })
+        const chatrooms2 = await this.prismaService.userChatroom.findMany({
+            where: {
+                userId: userId2
+            }
+        })
+
+        let res
+
+        // 然后再查询 chatrooms 和 chatroom2 的交集，返回第一个 chatroomId
+        for (let i = 0; i < chatrooms.length; i++) {
+            const chatroom = await this.prismaService.chatroom.findFirst({
+                where: {
+                    id: chatrooms[i].chatroomId
+                }
+            })
+
+            // 过程中要过滤掉类型为群聊的聊天室
+            if (chatroom?.type === true) {
+                continue
+            }
+
+            const found = chatrooms2.find(item2 => item2.chatroomId === chatroom.id)
+            if (found) {
+                res = found.chatroomId
+                break
+            }
+        }
+
+        return res
+    }
 }
