@@ -13,18 +13,18 @@ import { APP_GUARD } from '@nestjs/core';
         RedisModule,
         PrismaModule,
         EmailModule,
-        JwtModule.registerAsync({
-            global: true,
-            useFactory() {
-                return {
-                    secret: 'guang',
-                    signOptions: {
-                        // 默认 30 分钟
-                        expiresIn: '30m' 
-                    }
-                }
-            }
-        }),
+        // JwtModule.registerAsync({
+        //     global: true,
+        //     useFactory() {
+        //         return {
+        //             secret: 'guang',
+        //             signOptions: {
+        //                 // 默认 30 分钟
+        //                 expiresIn: '30m' 
+        //             }
+        //         }
+        //     }
+        // }),
         CommonModule
     ],
     controllers: [UserController],
