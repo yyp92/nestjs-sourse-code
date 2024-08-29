@@ -54,7 +54,7 @@ export class ExamController {
     // 查找对应的试卷内容
     @Get('find/:id')
     @RequireLogin()
-    async find(@UserInfo('userId') userId: number, @Param('id') id: string) {
-        return this.examService.find(userId, +id);
+    async find(@Param('id') id: string) {
+        return this.examService.find(+id);
     }
 }
