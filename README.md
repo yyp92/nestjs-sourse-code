@@ -316,7 +316,7 @@ Nest 就是通过这种 AOP 的架构方式，实现了松耦合、易于维护�
 
 
 ### 一网打尽 Nest 全部装饰器
-`代码库：all-decorator`
+`代码库：nestjs-demo/all-decorator`
 
 这节我们梳理了下 Nest 全部的装饰器：
 - @Module： 声明 Nest 模块
@@ -344,3 +344,65 @@ Nest 就是通过这种 AOP 的架构方式，实现了松耦合、易于维护�
 - @Header：修改响应头
 - @Redirect：指定重定向的 url
 - @Render：指定渲染用的模版引擎
+
+
+
+### Nest 如何自定义装饰器
+`代码库：nestjs-demo/custom-decorator`
+
+内置装饰器不够用的时候，或者想把多个装饰器合并成一个的时候，都可以自定义装饰器。
+
+方法的装饰器就是传入参数，调用下别的装饰器就好了，比如对 @SetMetadata 的封装。
+
+如果组合多个方法装饰器，可以使用 applyDecorators api。
+
+class 装饰器和方法装饰器一样。
+
+还可以通过 createParamDecorator 来创建参数装饰器，它能拿到 ExecutionContext，进而拿到 reqeust、response，可以实现很多内置装饰器的功能，比如 @Query、@Headers 等装饰器。
+
+通过自定义方法和参数的装饰器，可以让 Nest 代码更加的灵活。
+
+
+
+### Metadata 和 Reflector
+`代码库：nestjs-demo/metadata-and-reflector`
+
+`nest 的核心实现原理`：**通过装饰器给 class 或者对象添加 metadata，并且开启 ts 的 emitDecoratorMetadata 来自动添加类型相关的 metadata，然后运行的时候通过这些元数据来实现依赖的扫描，对象的创建等等功能。**
+
+Nest 的装饰器的实现原理就是 Reflect.getMetadata、Reflect.defineMetadata 这些 api。通过在 class、method 上添加 metadata，然后扫描到它的时候取出 metadata 来做相应的处理来完成各种功能。
+
+Nest 的 Controller、Module、Service 等等所有的装饰器都是通过 Reflect.meatdata 给类或对象添加元数据的，然后初始化的时候取出来做依赖的扫描，实例化后放到 IOC 容器里。
+
+实例化对象还需要构造器参数的类型，这个开启 ts 的 emitDecoratorMetadata 的编译选项之后， ts 就会自动添加一些元数据，也就是 design:type、design:paramtypes、design:returntype 这三个，分别代表被装饰的目标的类型、参数的类型、返回值的类型。
+
+当然，reflect metadata 的 api 还在草案阶段，需要引入 reflect metadata 的包做 polyfill。
+
+Nest 还提供了 @SetMetadata 的装饰器，可以在 controller 的 class 和 method 上添加 metadata，然后在 interceptor 和 guard 里通过 reflector 的 api 取出来。
+
+理解了 metadata，nest 的实现原理就很容易搞懂了。
+
+
+
+### ExecutionContext：切换不同上下文
+`代码库：nestjs-demo/argument-host`
+
+为了让 Filter、Guard、Exception Filter 支持 http、ws、rpc 等场景下复用，Nest 设计了 ArgumentHost 和 ExecutionContext 类。
+
+ArgumentHost 可以通过 getArgs 或者 getArgByIndex 拿到上下文参数，比如 request、response、next 等。
+
+更推荐的方式是根据 getType 的结果分别 switchToHttp、switchToWs、swtichToRpc，然后再取对应的 argument。
+
+而 ExecutionContext 还提供 getClass、getHandler 方法，可以结合 reflector 来取出其中的 metadata。
+
+在写 Filter、Guard、Exception Filter 的时候，是需要用到这些 api 的。
+
+
+
+### Module 和 Provider 的循环依赖怎么处理？
+`代码库：nestjs-demo/module-test`
+
+Module 之间可以相互 imports，Provider 之间可以相互注入，这两者都会形成循环依赖。
+
+解决方式就是两边都用 forwardRef 来包裹下。
+
+它的原理就是 nest 会先创建 Module、Provider，之后再把引用转发到对方，也就是 forward ref。
